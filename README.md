@@ -4,14 +4,13 @@
 
 `mnemo` gives any Python app a local, searchable memory layer backed by a single SQLite file.
 
-## Why we picked the name `mnemo` (the lighthearted test)
+## Problem
 
-We wanted a name that passes the "3 a.m. production brain" test:
-- Can you type it quickly with one hand? `mnemo` passes.
-- Can someone hear it once and remember it? Usually yes.
-- Does it hint at memory without sounding like a database vendor? Also yes.
+LLM apps forget useful context between turns, while full database stacks are often too heavy for teams that just need fast, local, reliable memory retrieval.
 
-The name comes from the same root as "mnemonic": memory cues, recall, context.
+## Why we picked the name `mnemo`
+
+`mnemo` is short, easy to type and remember, hints at memory without vendor-heavy vibes, and comes from the same root as "mnemonic" (memory cues, recall, context).
 
 ## Why mnemo?
 
