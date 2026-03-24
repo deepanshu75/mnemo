@@ -30,15 +30,18 @@ class HybridRetriever:
     ) -> list[RetrievalHit]:
         if not chunks:
             return []
+        # Lexical ranking: exact/keyword overlap via BM25.
         corpus_tokens = [_tokenize(chunk.text) for chunk in chunks]
         bm25 = BM25Okapi(corpus_tokens)
         bm25_scores = bm25.get_scores(_tokenize(query))
 
+        # Semantic ranking: cosine-like score on normalized vectors.
         vectors = np.stack([chunk.embedding for chunk in chunks], axis=0)
         vector_scores = np.dot(vectors, query_embedding)
 
         bm25_ranking = [idx for idx, _ in sorted(enumerate(bm25_scores), key=lambda x: x[1], reverse=True)]
         vector_ranking = [idx for idx, _ in sorted(enumerate(vector_scores), key=lambda x: x[1], reverse=True)]
+        # Fuse both rankings so neither signal dominates alone.
         fused = reciprocal_rank_fusion([bm25_ranking, vector_ranking])
         ordered = sorted(fused.items(), key=lambda x: x[1], reverse=True)[:top_k]
         return [RetrievalHit(chunk=chunks[idx], score=score) for idx, score in ordered]

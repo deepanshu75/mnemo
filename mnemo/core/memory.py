@@ -45,12 +45,14 @@ class MemoryStore:
         self.retriever = HybridRetriever()
 
     def add(self, text: str, *, source: str | None = None) -> int:
+        # Semantic chunking needs sentence embeddings to find boundaries.
         if self.chunker.config.strategy == "semantic":
             chunks = self.chunker.chunk(text, embed_fn=self.embedder.embed)
         else:
             chunks = self.chunker.chunk(text)
         if not chunks:
             return 0
+        # One embedding per chunk, then persist text + vector together.
         embeddings = self.embedder.embed(chunks)
         return self.store.insert_many(
             namespace=self.namespace,
@@ -63,6 +65,7 @@ class MemoryStore:
         chunks = self.store.fetch_namespace(self.namespace)
         if not chunks:
             return []
+        # Embed query once and score it against all stored chunk vectors.
         query_embedding = self.embedder.embed([query])[0]
         hits = self.retriever.search(
             query=query,

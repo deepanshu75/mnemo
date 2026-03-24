@@ -29,6 +29,7 @@ class SQLiteStore:
 
     def _connect(self) -> sqlite3.Connection:
         conn = sqlite3.connect(self.path)
+        # WAL improves concurrent read/write behavior for local workloads.
         conn.execute("PRAGMA journal_mode=WAL;")
         return conn
 
@@ -53,6 +54,7 @@ class SQLiteStore:
 
     @staticmethod
     def _to_blob(vector: np.ndarray) -> bytes:
+        # Store embeddings compactly as float32 bytes in SQLite.
         return vector.astype(np.float32).tobytes()
 
     @staticmethod
